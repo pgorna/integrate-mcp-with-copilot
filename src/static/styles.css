@@ -5,6 +5,11 @@
   font-family: Arial, sans-serif;
 }
 
+:root {
+  --school-green: #32CD32;
+  --school-green-dark: #28a428;
+}
+
 body {
   font-family: Arial, sans-serif;
   line-height: 1.6;
@@ -52,7 +57,7 @@ header {
   text-align: center;
   padding: 20px 0;
   margin-bottom: 30px;
-  background-color: #32CD32;
+  background-color: var(--school-green);
   color: white;
   border-radius: 5px;
 }
@@ -87,7 +92,7 @@ section h3 {
   margin-bottom: 20px;
   padding-bottom: 10px;
   border-bottom: 1px solid #ddd;
-  color: #32CD32;
+  color: var(--school-green);
 }
 
 .activity-card {
@@ -100,7 +105,7 @@ section h3 {
 
 .activity-card h4 {
   margin-bottom: 10px;
-  color: #32CD32;
+  color: var(--school-green);
 }
 
 .activity-card p {
@@ -116,7 +121,7 @@ section h3 {
 
 .participants-section h5 {
   margin-bottom: 8px;
-  color: #32CD32;
+  color: var(--school-green);
   font-size: 16px;
 }
 
@@ -183,7 +188,7 @@ section h3 {
 }
 
 button {
-  background-color: #32CD32;
+  background-color: var(--school-green);
   color: white;
   border: none;
   padding: 10px 15px;
@@ -194,7 +199,7 @@ button {
 }
 
 button:hover {
-  background-color: #28a428;
+  background-color: var(--school-green-dark);
 }
 
 .message {
@@ -243,7 +248,7 @@ footer {
 }
 
 .mascots-section h3 {
-  color: #32CD32;
+  color: var(--school-green);
   margin-bottom: 20px;
 }
 
