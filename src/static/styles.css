@@ -13,13 +13,46 @@ body {
   margin: 0 auto;
   padding: 20px;
   background-color: #f5f5f5;
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* Git-style branch animation background */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+  background-image: 
+    linear-gradient(90deg, rgba(50, 205, 50, 0.1) 1px, transparent 1px),
+    linear-gradient(rgba(50, 205, 50, 0.1) 1px, transparent 1px);
+  background-size: 50px 50px;
+  animation: gridMove 20s linear infinite;
+}
+
+@keyframes gridMove {
+  0% {
+    transform: translate(0, 0);
+  }
+  100% {
+    transform: translate(50px, 50px);
+  }
+}
+
+body > * {
+  position: relative;
+  z-index: 1;
 }
 
 header {
   text-align: center;
   padding: 20px 0;
   margin-bottom: 30px;
-  background-color: #1a237e;
+  background-color: #32CD32;
   color: white;
   border-radius: 5px;
 }
@@ -54,7 +87,7 @@ section h3 {
   margin-bottom: 20px;
   padding-bottom: 10px;
   border-bottom: 1px solid #ddd;
-  color: #1a237e;
+  color: #32CD32;
 }
 
 .activity-card {
@@ -67,7 +100,7 @@ section h3 {
 
 .activity-card h4 {
   margin-bottom: 10px;
-  color: #0066cc;
+  color: #32CD32;
 }
 
 .activity-card p {
@@ -83,7 +116,7 @@ section h3 {
 
 .participants-section h5 {
   margin-bottom: 8px;
-  color: #1a237e;
+  color: #32CD32;
   font-size: 16px;
 }
 
@@ -150,7 +183,7 @@ section h3 {
 }
 
 button {
-  background-color: #1a237e;
+  background-color: #32CD32;
   color: white;
   border: none;
   padding: 10px 15px;
@@ -161,7 +194,7 @@ button {
 }
 
 button:hover {
-  background-color: #3949ab;
+  background-color: #28a428;
 }
 
 .message {
@@ -196,5 +229,50 @@ footer {
   text-align: center;
   margin-top: 30px;
   padding: 20px;
+  color: #666;
+}
+
+/* Mascots section */
+.mascots-section {
+  text-align: center;
+  margin: 30px 0;
+  padding: 20px;
+  background-color: white;
+  border-radius: 5px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.mascots-section h3 {
+  color: #32CD32;
+  margin-bottom: 20px;
+}
+
+.mascots-gallery {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 20px;
+  align-items: center;
+}
+
+.mascot-item {
+  text-align: center;
+  transition: transform 0.3s ease;
+}
+
+.mascot-item:hover {
+  transform: scale(1.1);
+}
+
+.mascot-item img {
+  width: 150px;
+  height: 150px;
+  object-fit: contain;
+  border-radius: 10px;
+}
+
+.mascot-item p {
+  margin-top: 10px;
+  font-size: 14px;
   color: #666;
 }
