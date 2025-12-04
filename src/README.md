@@ -6,6 +6,25 @@ A super simple FastAPI application that allows students to view and sign up for 
 
 - View all available extracurricular activities
 - Sign up for activities
+- **Easy activity management** - Activities are stored in `activities.json` file for easy editing
+
+## Managing Activities
+
+Activities are now stored in the `activities.json` file in the repository root. Teachers can easily add, remove, or modify activities by editing this file without touching the Python code.
+
+### Example activity entry:
+```json
+{
+    "Activity Name": {
+        "description": "Activity description",
+        "schedule": "When it meets",
+        "max_participants": 20,
+        "participants": []
+    }
+}
+```
+
+**Note:** After modifying `activities.json`, restart the server to load the changes.
 
 ## Getting Started
 
