@@ -37,6 +37,8 @@ def load_activities():
         raise RuntimeError(f"Invalid JSON in activities.json: {e}")
 
 # In-memory activity database (loaded from activities.json)
+# Note: Changes to participants are stored in memory only and will be lost on restart.
+# To persist changes, you would need to implement a save mechanism.
 activities = load_activities()
 
 # In-memory attendance database
