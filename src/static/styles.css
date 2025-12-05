@@ -67,15 +67,30 @@ header h1 {
 }
 
 main {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 30px;
-  justify-content: center;
+  display: block;
+  width: 100%;
+  max-width: 100%;
+}
+
+#activities-container {
+  background-color: white;
+  padding: 20px;
+  border-radius: 5px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 100%;
+}
+
+#activities-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+  width: 100%;
 }
 
 @media (min-width: 768px) {
-  main {
-    grid-template-columns: 2fr 1fr;
+  #activities-list {
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
   }
 }
 
@@ -85,7 +100,6 @@ section {
   border-radius: 5px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
   width: 100%;
-  max-width: 500px;
 }
 
 section h3 {
@@ -96,11 +110,14 @@ section h3 {
 }
 
 .activity-card {
-  margin-bottom: 15px;
+  margin-bottom: 0;
   padding: 15px;
   border: 1px solid #ddd;
   border-radius: 5px;
   background-color: #f9f9f9;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 }
 
 .activity-card h4 {
@@ -110,6 +127,23 @@ section h3 {
 
 .activity-card p {
   margin-bottom: 8px;
+}
+
+.register-btn {
+  background-color: var(--school-green);
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  font-size: 16px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  margin-top: auto;
+  width: 100%;
+}
+
+.register-btn:hover {
+  background-color: var(--school-green-dark);
 }
 
 /* New styles for participants section */
@@ -203,9 +237,10 @@ button:hover {
 }
 
 .message {
-  margin-top: 20px;
+  margin: 20px auto;
   padding: 10px;
   border-radius: 4px;
+  max-width: 1200px;
 }
 
 .success {
