@@ -76,8 +76,9 @@ document.addEventListener("DOMContentLoaded", () => {
       return; // User cancelled or entered empty email
     }
 
-    // Basic email validation
-    if (!email.includes("@")) {
+    // Email validation with regex
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
       showMessage("Please enter a valid email address", "error");
       return;
     }
