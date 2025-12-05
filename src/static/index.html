@@ -5,11 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Mergington High School Activities</title>
     <link rel="stylesheet" href="styles.css" />
+    <!-- FullCalendar CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.css" rel="stylesheet" />
   </head>
   <body>
     <header>
       <h1>Mergington High School</h1>
       <h2>Extracurricular Activities</h2>
+      <nav class="view-switcher">
+        <button id="list-view-btn" class="active">📋 List View</button>
+        <button id="calendar-view-btn">📅 Calendar View</button>
+      </nav>
     </header>
 
     <section class="mascots-section">
@@ -43,21 +49,66 @@
     </section>
 
     <main>
-      <section id="activities-container">
-        <h3>Available Activities</h3>
-        <div id="activities-list">
-          <!-- Activities will be loaded here -->
-          <p>Loading activities...</p>
+      <!-- List View -->
+      <section id="list-view" class="view-section active">
+        <div id="activities-container">
+          <h3>Available Activities</h3>
+          <div id="activities-list">
+            <!-- Activities will be loaded here -->
+            <p>Loading activities...</p>
+          </div>
         </div>
       </section>
+
+      <!-- Calendar View -->
+      <section id="calendar-view" class="view-section">
+        <div class="calendar-controls">
+          <h3>Activity Schedule Calendar</h3>
+          <div class="calendar-filters">
+            <label for="activity-filter">Filter by Activity:</label>
+            <select id="activity-filter">
+              <option value="">All Activities</option>
+            </select>
+            <label for="student-filter">Filter by Student:</label>
+            <input type="email" id="student-filter" placeholder="student@mergington.edu" />
+            <button id="apply-filters-btn">Apply Filters</button>
+            <button id="clear-filters-btn">Clear Filters</button>
+            <button id="export-calendar-btn">📥 Export to iCal</button>
+          </div>
+        </div>
+        <div id="calendar-container"></div>
+        <div class="calendar-legend">
+          <h4>Legend:</h4>
+          <p>Click on an event to view details. Different colors represent different activities.</p>
+        </div>
+      </section>
+
+      <!-- Upcoming Events Widget -->
+      <aside id="upcoming-events-widget">
+        <h4>📅 Upcoming Events</h4>
+        <div id="upcoming-events-list">
+          <p>Loading...</p>
+        </div>
+      </aside>
     </main>
 
     <div id="message" class="hidden"></div>
+
+    <!-- Event Details Modal -->
+    <div id="event-modal" class="modal hidden">
+      <div class="modal-content">
+        <span class="modal-close">&times;</span>
+        <h3 id="modal-event-title"></h3>
+        <div id="modal-event-details"></div>
+      </div>
+    </div>
 
     <footer>
       <p>&copy; 2023 Mergington High School</p>
     </footer>
 
+    <!-- FullCalendar JS -->
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js"></script>
     <script src="app.js"></script>
   </body>
 </html>

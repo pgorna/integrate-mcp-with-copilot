@@ -1,15 +1,46 @@
 document.addEventListener("DOMContentLoaded", () => {
   const activitiesList = document.getElementById("activities-list");
   const messageDiv = document.getElementById("message");
+  let calendar = null;
+  let activitiesData = {};
+
+  // View switcher
+  const listViewBtn = document.getElementById("list-view-btn");
+  const calendarViewBtn = document.getElementById("calendar-view-btn");
+  const listView = document.getElementById("list-view");
+  const calendarView = document.getElementById("calendar-view");
+
+  listViewBtn.addEventListener("click", () => {
+    listView.classList.add("active");
+    calendarView.classList.remove("active");
+    listViewBtn.classList.add("active");
+    calendarViewBtn.classList.remove("active");
+  });
+
+  calendarViewBtn.addEventListener("click", () => {
+    calendarView.classList.add("active");
+    listView.classList.remove("active");
+    calendarViewBtn.classList.add("active");
+    listViewBtn.classList.remove("active");
+    
+    // Initialize calendar if not already done
+    if (!calendar) {
+      initializeCalendar();
+    }
+  });
 
   // Function to fetch activities from API
   async function fetchActivities() {
     try {
       const response = await fetch("/activities");
       const activities = await response.json();
+      activitiesData = activities;
 
       // Clear loading message
       activitiesList.innerHTML = "";
+
+      // Populate activity filter dropdown
+      populateActivityFilter(activities);
 
       // Populate activities list
       Object.entries(activities).forEach(([name, details]) => {
@@ -151,6 +182,256 @@ document.addEventListener("DOMContentLoaded", () => {
     }, 5000);
   }
 
+  // Populate activity filter dropdown
+  function populateActivityFilter(activities) {
+    const activityFilter = document.getElementById("activity-filter");
+    activityFilter.innerHTML = '<option value="">All Activities</option>';
+    
+    Object.keys(activities).forEach(activityName => {
+      const option = document.createElement("option");
+      option.value = activityName;
+      option.textContent = activityName;
+      activityFilter.appendChild(option);
+    });
+  }
+
+  // Initialize FullCalendar
+  function initializeCalendar() {
+    const calendarEl = document.getElementById("calendar-container");
+    
+    calendar = new FullCalendar.Calendar(calendarEl, {
+      initialView: "dayGridMonth",
+      headerToolbar: {
+        left: "prev,next today",
+        center: "title",
+        right: "dayGridMonth,timeGridWeek,timeGridDay"
+      },
+      events: fetchCalendarEvents,
+      eventClick: handleEventClick,
+      height: "auto",
+      eventTimeFormat: {
+        hour: '2-digit',
+        minute: '2-digit',
+        meridiem: 'short'
+      }
+    });
+    
+    calendar.render();
+    loadUpcomingEvents();
+  }
+
+  // Fetch calendar events
+  async function fetchCalendarEvents(info, successCallback, failureCallback) {
+    try {
+      const activityFilter = document.getElementById("activity-filter").value;
+      const studentFilter = document.getElementById("student-filter").value;
+      
+      let url = "/calendar/events";
+      const params = new URLSearchParams();
+      
+      if (info.start) {
+        params.append("start", info.start.toISOString());
+      }
+      if (info.end) {
+        params.append("end", info.end.toISOString());
+      }
+      if (activityFilter) {
+        params.append("activity", activityFilter);
+      }
+      if (studentFilter) {
+        params.append("email", studentFilter);
+      }
+      
+      if (params.toString()) {
+        url += "?" + params.toString();
+      }
+      
+      const response = await fetch(url);
+      const data = await response.json();
+      
+      // Transform events to FullCalendar format
+      const events = data.events.map(event => ({
+        id: event.id,
+        title: event.title,
+        start: event.start,
+        end: event.end,
+        backgroundColor: event.color,
+        borderColor: event.color,
+        extendedProps: {
+          activity_name: event.activity_name,
+          description: event.description,
+          room: event.room,
+          is_cancelled: event.is_cancelled
+        }
+      }));
+      
+      successCallback(events);
+    } catch (error) {
+      console.error("Error fetching calendar events:", error);
+      failureCallback(error);
+    }
+  }
+
+  // Handle event click
+  function handleEventClick(info) {
+    const event = info.event;
+    const modal = document.getElementById("event-modal");
+    const modalTitle = document.getElementById("modal-event-title");
+    const modalDetails = document.getElementById("modal-event-details");
+    
+    modalTitle.textContent = event.title;
+    
+    const startDate = new Date(event.start);
+    const endDate = new Date(event.end);
+    
+    modalDetails.innerHTML = `
+      <p><strong>Activity:</strong> ${event.extendedProps.activity_name}</p>
+      <p><strong>Start:</strong> ${startDate.toLocaleString()}</p>
+      <p><strong>End:</strong> ${endDate.toLocaleString()}</p>
+      ${event.extendedProps.room ? `<p><strong>Room:</strong> ${event.extendedProps.room}</p>` : ''}
+      ${event.extendedProps.description ? `<p><strong>Description:</strong> ${event.extendedProps.description}</p>` : ''}
+      ${event.extendedProps.is_cancelled ? `<p style="color: red;"><strong>Status:</strong> CANCELLED</p>` : ''}
+    `;
+    
+    modal.classList.remove("hidden");
+  }
+
+  // Close modal
+  document.querySelector(".modal-close").addEventListener("click", () => {
+    document.getElementById("event-modal").classList.add("hidden");
+  });
+
+  // Close modal on outside click
+  document.getElementById("event-modal").addEventListener("click", (e) => {
+    if (e.target.id === "event-modal") {
+      e.target.classList.add("hidden");
+    }
+  });
+
+  // Apply filters
+  document.getElementById("apply-filters-btn").addEventListener("click", () => {
+    if (calendar) {
+      calendar.refetchEvents();
+      loadUpcomingEvents();
+    }
+  });
+
+  // Clear filters
+  document.getElementById("clear-filters-btn").addEventListener("click", () => {
+    document.getElementById("activity-filter").value = "";
+    document.getElementById("student-filter").value = "";
+    if (calendar) {
+      calendar.refetchEvents();
+      loadUpcomingEvents();
+    }
+  });
+
+  // Export calendar
+  document.getElementById("export-calendar-btn").addEventListener("click", async () => {
+    try {
+      const activityFilter = document.getElementById("activity-filter").value;
+      const studentFilter = document.getElementById("student-filter").value;
+      
+      let url = "/calendar/export";
+      const params = new URLSearchParams();
+      
+      if (activityFilter) {
+        params.append("activity", activityFilter);
+      }
+      if (studentFilter) {
+        params.append("email", studentFilter);
+      }
+      
+      if (params.toString()) {
+        url += "?" + params.toString();
+      }
+      
+      window.open(url, "_blank");
+      showMessage("Calendar exported successfully!", "success");
+    } catch (error) {
+      showMessage("Failed to export calendar", "error");
+      console.error("Error exporting calendar:", error);
+    }
+  });
+
+  // Load upcoming events
+  async function loadUpcomingEvents() {
+    try {
+      const activityFilter = document.getElementById("activity-filter").value;
+      const studentFilter = document.getElementById("student-filter").value;
+      
+      const now = new Date();
+      const twoWeeksFromNow = new Date(now.getTime() + 14 * 24 * 60 * 60 * 1000);
+      
+      let url = "/calendar/events";
+      const params = new URLSearchParams({
+        start: now.toISOString(),
+        end: twoWeeksFromNow.toISOString()
+      });
+      
+      if (activityFilter) {
+        params.append("activity", activityFilter);
+      }
+      if (studentFilter) {
+        params.append("email", studentFilter);
+      }
+      
+      url += "?" + params.toString();
+      
+      const response = await fetch(url);
+      const data = await response.json();
+      
+      const upcomingList = document.getElementById("upcoming-events-list");
+      
+      if (data.events.length === 0) {
+        upcomingList.innerHTML = "<p>No upcoming events in the next 2 weeks.</p>";
+        return;
+      }
+      
+      // Sort by start date
+      const sortedEvents = data.events.sort((a, b) => 
+        new Date(a.start) - new Date(b.start)
+      ).slice(0, 5); // Show only first 5
+      
+      upcomingList.innerHTML = sortedEvents.map(event => {
+        const startDate = new Date(event.start);
+        return `
+          <div class="upcoming-event-item">
+            <h5>${event.title}</h5>
+            <p>📅 ${startDate.toLocaleDateString()} at ${startDate.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</p>
+            <p>📍 ${event.room || 'Location TBD'}</p>
+          </div>
+        `;
+      }).join('');
+    } catch (error) {
+      console.error("Error loading upcoming events:", error);
+      document.getElementById("upcoming-events-list").innerHTML = 
+        "<p>Failed to load upcoming events.</p>";
+    }
+  }
+
   // Initialize app
   fetchActivities();
+  
+  // Refresh upcoming events every 5 minutes (only when in calendar view)
+  let upcomingEventsInterval = null;
+  
+  // Start interval when switching to calendar view
+  calendarViewBtn.addEventListener("click", () => {
+    if (!upcomingEventsInterval) {
+      upcomingEventsInterval = setInterval(() => {
+        if (calendarView.classList.contains("active")) {
+          loadUpcomingEvents();
+        }
+      }, 5 * 60 * 1000);
+    }
+  });
+  
+  // Clear interval when switching back to list view
+  listViewBtn.addEventListener("click", () => {
+    if (upcomingEventsInterval) {
+      clearInterval(upcomingEventsInterval);
+      upcomingEventsInterval = null;
+    }
+  });
 });
