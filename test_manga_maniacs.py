@@ -3,6 +3,7 @@ Test script to verify Manga Maniacs activity is properly configured
 """
 import requests
 import json
+import sys
 
 BASE_URL = "http://localhost:8000"
 
@@ -42,7 +43,7 @@ def test_manga_maniacs_exists():
     print(f"✅ Description: {manga_maniacs['description']}")
     
     # Check schedule
-    expected_schedule = "Tuesday at 7pm"
+    expected_schedule = "Tuesdays, 7:00 PM - 8:00 PM"
     if manga_maniacs["schedule"] != expected_schedule:
         print(f"❌ Schedule mismatch!")
         print(f"   Expected: {expected_schedule}")
@@ -80,10 +81,10 @@ if __name__ == "__main__":
     
     try:
         success = test_manga_maniacs_exists()
-        exit(0 if success else 1)
+        sys.exit(0 if success else 1)
     except requests.exceptions.ConnectionError:
         print("❌ Error: Cannot connect to server. Make sure it's running!")
-        exit(1)
+        sys.exit(1)
     except Exception as e:
         print(f"❌ Error: {e}")
-        exit(1)
+        sys.exit(1)
