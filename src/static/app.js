@@ -413,6 +413,25 @@ document.addEventListener("DOMContentLoaded", () => {
   // Initialize app
   fetchActivities();
   
-  // Refresh upcoming events every 5 minutes
-  setInterval(loadUpcomingEvents, 5 * 60 * 1000);
+  // Refresh upcoming events every 5 minutes (only when in calendar view)
+  let upcomingEventsInterval = null;
+  
+  // Start interval when switching to calendar view
+  calendarViewBtn.addEventListener("click", () => {
+    if (!upcomingEventsInterval) {
+      upcomingEventsInterval = setInterval(() => {
+        if (calendarView.classList.contains("active")) {
+          loadUpcomingEvents();
+        }
+      }, 5 * 60 * 1000);
+    }
+  });
+  
+  // Clear interval when switching back to list view
+  listViewBtn.addEventListener("click", () => {
+    if (upcomingEventsInterval) {
+      clearInterval(upcomingEventsInterval);
+      upcomingEventsInterval = null;
+    }
+  });
 });

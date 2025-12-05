@@ -67,7 +67,20 @@ class CalendarEvent(BaseModel):
     room: Optional[str] = None
     color: Optional[str] = None
     is_cancelled: bool = False
-    cancellation_dates: Optional[List[str]] = []  # Specific dates when event is cancelled
+    cancellation_dates: List[str] = []
+    
+    class Config:
+        # Use a function to create a new list for each instance
+        schema_extra = {
+            "example": {
+                "cancellation_dates": []
+            }
+        }
+    
+    def __init__(self, **data):
+        if 'cancellation_dates' not in data:
+            data['cancellation_dates'] = []
+        super().__init__(**data)  # Specific dates when event is cancelled
 
 class EventCreate(BaseModel):
     title: str
@@ -370,11 +383,36 @@ def generate_recurring_events(event: dict) -> List[dict]:
         elif event["recurrence"] == "weekly":
             current_dt += timedelta(weeks=1)
         elif event["recurrence"] == "monthly":
-            # Simple monthly recurrence (same day of month)
-            if current_dt.month == 12:
-                current_dt = current_dt.replace(year=current_dt.year + 1, month=1)
-            else:
-                current_dt = current_dt.replace(month=current_dt.month + 1)
+            # Simple monthly recurrence - handle day overflow
+            try:
+                if current_dt.month == 12:
+                    next_month = current_dt.replace(year=current_dt.year + 1, month=1)
+                else:
+                    next_month = current_dt.replace(month=current_dt.month + 1)
+                current_dt = next_month
+            except ValueError:
+                # Day doesn't exist in next month (e.g., Jan 31 -> Feb 31)
+                # Move to last day of next month
+                if current_dt.month == 12:
+                    next_month = 1
+                    next_year = current_dt.year + 1
+                else:
+                    next_month = current_dt.month + 1
+                    next_year = current_dt.year
+                
+                # Find last day of next month
+                if next_month == 12:
+                    last_day = 31
+                elif next_month in [4, 6, 9, 11]:
+                    last_day = 30
+                elif next_month == 2:
+                    # Check for leap year
+                    is_leap = (next_year % 4 == 0 and next_year % 100 != 0) or (next_year % 400 == 0)
+                    last_day = 29 if is_leap else 28
+                else:
+                    last_day = 31
+                
+                current_dt = current_dt.replace(year=next_year, month=next_month, day=last_day)
         else:
             break
     
@@ -594,9 +632,16 @@ def export_calendar(
         start_ical = start_dt.strftime("%Y%m%dT%H%M%SZ")
         end_ical = end_dt.strftime("%Y%m%dT%H%M%SZ")
         
+        # Create unique UID for recurring instances
+        uid = f"{event['id']}"
+        if event.get("recurrence"):
+            # Add date to UID for recurring event instances
+            uid += f"-{start_dt.strftime('%Y%m%d')}"
+        uid += "@mergington.edu"
+        
         ical_lines.extend([
             "BEGIN:VEVENT",
-            f"UID:{event['id']}@mergington.edu",
+            f"UID:{uid}",
             f"DTSTART:{start_ical}",
             f"DTEND:{end_ical}",
             f"SUMMARY:{event['title']}",
