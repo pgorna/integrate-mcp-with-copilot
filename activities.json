@@ -58,5 +58,11 @@
         "schedule": "Mondays and Wednesdays, 3:30 PM - 5:00 PM",
         "max_participants": 25,
         "participants": []
+    },
+    "Manga Maniacs": {
+        "description": "Explore the fantastic stories of the most interesting characters from Japanese Manga (graphic novels).",
+        "schedule": "Tuesday at 7pm",
+        "max_participants": 15,
+        "participants": []
     }
 }
