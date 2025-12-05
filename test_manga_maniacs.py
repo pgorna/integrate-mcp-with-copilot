@@ -34,7 +34,7 @@ def test_manga_maniacs_exists():
     print("2️⃣ Verifying activity details...")
     
     # Check description
-    expected_description = "Explore the fantastic stories of the most interesting characters from Japanese Manga (graphic novels)."
+    expected_description = "Dive into the epic worlds of Japanese Manga! Discover legendary heroes, intense battles, heartwarming friendships, and mind-bending plot twists. From shonen adventures to slice-of-life stories, unleash your inner otaku!"
     if manga_maniacs["description"] != expected_description:
         print(f"❌ Description mismatch!")
         print(f"   Expected: {expected_description}")
